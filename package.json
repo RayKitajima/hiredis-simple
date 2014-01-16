@@ -1,6 +1,6 @@
 {
 	"name" : "hiredis-simple",
-	"version" : "0.0.1",
+	"version" : "0.1.0",
 	"description" : "Synchronous, blocking simple Redis, hiredis C client binding.",
 	"keywords" : [
 		"redis",
@@ -17,7 +17,9 @@
 		"email" : "rei.kitajima@gmail.com>"
 	},
 	"main" : "./lib",
-	"dependencies" : {},
+	"dependencies" : {
+		"nan" : "~0.8.0"
+	},
 	"scripts" : { 
 		"prepublish" : "rm -r build || (exit 0)",
 		"install"    : "node-gyp rebuild || (exit 0)"

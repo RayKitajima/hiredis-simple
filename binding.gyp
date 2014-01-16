@@ -6,7 +6,11 @@
 				"src/hiredissimple.cc",
 				"src/connection.cc"
 			],
-			'libraries' : ['-lhiredis']
+			"include_dirs": [
+				'<!@(pg_config --includedir)',
+				'<!(node -e "require(\'nan\')")'
+			],
+			"libraries" : ['-lhiredis']
 		}
 	]
 }

@@ -1,9 +1,7 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
-#include <node.h>
-#include <v8.h>
-#include <node_buffer.h>
+#include <nan.h>
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -24,21 +22,21 @@ public:
 	bool Connect(const char* host, const int port);
 	void Disconnect();
 	
-private:
+protected:
 	
 	redisContext *connection_;
 	
 	Connection();
 	~Connection();
 	
-	static Handle<Value> New(const v8::Arguments& args);
-	static Handle<Value> Connect(const Arguments& args);
-	static Handle<Value> Disconnect(const Arguments& args);
+	static NAN_METHOD(New);
+	static NAN_METHOD(Connect);
+	static NAN_METHOD(Disconnect);
 	
-	static Handle<Value> Get(const Arguments& args);
-	static Handle<Value> Set(const Arguments& args);
-	static Handle<Value> Del(const Arguments& args);
-	static Handle<Value> Expire(const Arguments& args);
+	static NAN_METHOD(Get);
+	static NAN_METHOD(Set);
+	static NAN_METHOD(Del);
+	static NAN_METHOD(Expire);
 	
 	static char* MallocCString(Handle<Value> v8String);
 	

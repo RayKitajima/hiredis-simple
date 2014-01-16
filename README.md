@@ -35,7 +35,7 @@ redis.disconnect();
 
 ## Note
 
-Still only for node 0.8.*.
+Node 0.8, 0.10, 0.11+ supported.
 
 ## License
 

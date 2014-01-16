@@ -1,6 +1,4 @@
-
-#include <node.h>
-#include <node_buffer.h>
+#include <nan.h>
 #include <string.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -15,90 +13,91 @@ Connection::~Connection() {};
 //v8 object initializer
 void Connection::Init(Handle<Object> target)
 {
+	NanScope();
+	
 	Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
 	
-	tpl->SetClassName(String::NewSymbol("Connection"));
+	tpl->SetClassName(NanSymbol("Connection"));
 	tpl->InstanceTemplate()->SetInternalFieldCount(1);
 	
 	tpl->PrototypeTemplate()->Set(
-		String::NewSymbol("Connection"),
+		NanSymbol("Connection"),
 		FunctionTemplate::New(New)->GetFunction()
 	);
 	
 	tpl->PrototypeTemplate()->Set(
-		String::NewSymbol("connect"),
+		NanSymbol("connect"),
 		FunctionTemplate::New(Connect)->GetFunction()
 	);
 	
 	tpl->PrototypeTemplate()->Set(
-		String::NewSymbol("get"),
+		NanSymbol("get"),
 		FunctionTemplate::New(Get)->GetFunction()
 	);
 	
 	tpl->PrototypeTemplate()->Set(
-		String::NewSymbol("set"),
+		NanSymbol("set"),
 		FunctionTemplate::New(Set)->GetFunction()
 	);
 	
 	tpl->PrototypeTemplate()->Set(
-		String::NewSymbol("del"),
+		NanSymbol("del"),
 		FunctionTemplate::New(Del)->GetFunction()
 	);
 	
 	tpl->PrototypeTemplate()->Set(
-		String::NewSymbol("expire"),
+		NanSymbol("expire"),
 		FunctionTemplate::New(Expire)->GetFunction()
 	);
 	
 	tpl->PrototypeTemplate()->Set(
-		String::NewSymbol("disconnect"),
+		NanSymbol("disconnect"),
 		FunctionTemplate::New(Disconnect)->GetFunction()
 	);
 	
-	Persistent<Function> constructor = Persistent<Function>::New(tpl->GetFunction());
-	target->Set(String::NewSymbol("Connection"), constructor);
+	target->Set(NanSymbol("Connection"), tpl->GetFunction());
 }
 
 //v8 entry point to constructor
-Handle<Value> Connection::New(const Arguments& args)
+NAN_METHOD(Connection::New)
 {
-	HandleScope scope;
+	NanScope();
 	
 	Connection *connection = new Connection();
 	connection->Wrap(args.This());
 	
-	return args.This();
+	NanReturnValue(args.This());
 }
 
 //v8 entry point into Connection#connect
-Handle<Value> Connection::Connect(const Arguments& args)
+NAN_METHOD(Connection::Connect)
 {
-	HandleScope scope;
+	NanScope();
 	Connection *self = ObjectWrap::Unwrap<Connection>(args.This());
 	
 	if(args.Length() == 0 || !args[0]->IsString() || !args[1]->IsNumber()) {
-		THROW("Invalid connection request, you should specify host and port");
+		NanThrowError("Invalid connection request, you should specify host and port");
 	}
 	
 	String::Utf8Value host(args[0]->ToString());
 	bool success = self->Connect(*host,args[1]->NumberValue());
 	if(!success) {
-		THROW("Can not make connection");
+		NanThrowError("Can not make connection");
 		self->Disconnect();
 	}
 	
-	return Undefined();
+	NanReturnUndefined();
 }
 
 //v8 entry point into Connection#disconnect
-Handle<Value> Connection::Disconnect(const Arguments& args)
+NAN_METHOD(Connection::Disconnect)
 {
-	HandleScope scope;
+	NanScope();
 	Connection *self = ObjectWrap::Unwrap<Connection>(args.This());
 	
 	self->Disconnect();
 	
-	return Undefined();
+	NanReturnUndefined();
 }
 
 
@@ -106,13 +105,13 @@ Handle<Value> Connection::Disconnect(const Arguments& args)
 
 
 //v8 entry point into Connection#get
-Handle<Value> Connection::Get(const Arguments& args)
+NAN_METHOD(Connection::Get)
 {
-	HandleScope scope;
+	NanScope();
 	Connection *self = ObjectWrap::Unwrap<Connection>(args.This());
 	
 	if( !args[0]->IsString() ){
-		THROW("No key specified");
+		NanThrowError("No key specified");
 	}
 	
 	char* key = MallocCString(args[0]);
@@ -126,7 +125,7 @@ Handle<Value> Connection::Get(const Arguments& args)
 		LOG("GET command failed");
 		free(key);
 		freeReplyObject(reply);
-		return scope.Close(Undefined());
+		NanReturnUndefined();
 	}
 	
 	// make response
@@ -142,17 +141,17 @@ Handle<Value> Connection::Get(const Arguments& args)
 	free(key);
 	freeReplyObject(reply);
 	
-	return scope.Close(response);
+	NanReturnValue(response);
 }
 
 //v8 entry point into Connection#set
-Handle<Value> Connection::Set(const Arguments& args)
+NAN_METHOD(Connection::Set)
 {
-	HandleScope scope;
+	NanScope();
 	Connection *self = ObjectWrap::Unwrap<Connection>(args.This());
 	
 	if( !args[0]->IsString() || !args[1]->IsString() ){
-		THROW("key and value should be string");
+		NanThrowError("key and value should be string");
 	}
 	
 	char* key = MallocCString(args[0]);
@@ -167,24 +166,24 @@ Handle<Value> Connection::Set(const Arguments& args)
 		LOG("SET command failed");
 		free(key);
 		freeReplyObject(reply);
-		return scope.Close(Undefined());
+		NanReturnUndefined();
 	}
 	
 	free(key);
 	free(val);
 	freeReplyObject(reply);
 	
-	return scope.Close(Undefined());
+	NanReturnUndefined();
 }
 
 //v8 entry point into Connection#del
-Handle<Value> Connection::Del(const Arguments& args)
+NAN_METHOD(Connection::Del)
 {
-	HandleScope scope;
+	NanScope();
 	Connection *self = ObjectWrap::Unwrap<Connection>(args.This());
 	
 	if( !args[0]->IsString() ){
-		THROW("No key specified");
+		NanThrowError("No key specified");
 	}
 	
 	char* key = MallocCString(args[0]);
@@ -194,17 +193,17 @@ Handle<Value> Connection::Del(const Arguments& args)
 	
 	free(key);
 	
-	return scope.Close(Undefined());
+	NanReturnUndefined();
 }
 
 //v8 entry point into Connection#expire
-Handle<Value> Connection::Expire(const Arguments& args)
+NAN_METHOD(Connection::Expire)
 {
-	HandleScope scope;
+	NanScope();
 	Connection *self = ObjectWrap::Unwrap<Connection>(args.This());
 	
 	if( !args[0]->IsString() || !args[1]->IsNumber() ){
-		THROW("key should be string, or ttl should be number");
+		NanThrowError("key should be string, or ttl should be number");
 	}
 	
 	char* key = MallocCString(args[0]);
@@ -215,7 +214,7 @@ Handle<Value> Connection::Expire(const Arguments& args)
 	
 	free(key);
 	
-	return scope.Close(Undefined());
+	NanReturnUndefined();
 }
 
 
