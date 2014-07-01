@@ -15,47 +15,47 @@ void Connection::Init(Handle<Object> target)
 {
 	NanScope();
 	
-	Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
+	Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(New);
 	
-	tpl->SetClassName(NanSymbol("Connection"));
+	tpl->SetClassName(NanNew<String>("Connection"));
 	tpl->InstanceTemplate()->SetInternalFieldCount(1);
 	
 	tpl->PrototypeTemplate()->Set(
-		NanSymbol("Connection"),
-		FunctionTemplate::New(New)->GetFunction()
+		NanNew<String>("Connection"),
+		NanNew<FunctionTemplate>(New)->GetFunction()
 	);
 	
 	tpl->PrototypeTemplate()->Set(
-		NanSymbol("connect"),
-		FunctionTemplate::New(Connect)->GetFunction()
+		NanNew<String>("connect"),
+		NanNew<FunctionTemplate>(Connect)->GetFunction()
 	);
 	
 	tpl->PrototypeTemplate()->Set(
-		NanSymbol("get"),
-		FunctionTemplate::New(Get)->GetFunction()
+		NanNew<String>("get"),
+		NanNew<FunctionTemplate>(Get)->GetFunction()
 	);
 	
 	tpl->PrototypeTemplate()->Set(
-		NanSymbol("set"),
-		FunctionTemplate::New(Set)->GetFunction()
+		NanNew<String>("set"),
+		NanNew<FunctionTemplate>(Set)->GetFunction()
 	);
 	
 	tpl->PrototypeTemplate()->Set(
-		NanSymbol("del"),
-		FunctionTemplate::New(Del)->GetFunction()
+		NanNew<String>("del"),
+		NanNew<FunctionTemplate>(Del)->GetFunction()
 	);
 	
 	tpl->PrototypeTemplate()->Set(
-		NanSymbol("expire"),
-		FunctionTemplate::New(Expire)->GetFunction()
+		NanNew<String>("expire"),
+		NanNew<FunctionTemplate>(Expire)->GetFunction()
 	);
 	
 	tpl->PrototypeTemplate()->Set(
-		NanSymbol("disconnect"),
-		FunctionTemplate::New(Disconnect)->GetFunction()
+		NanNew<String>("disconnect"),
+		NanNew<FunctionTemplate>(Disconnect)->GetFunction()
 	);
 	
-	target->Set(NanSymbol("Connection"), tpl->GetFunction());
+	target->Set(NanNew<String>("Connection"), tpl->GetFunction());
 }
 
 //v8 entry point to constructor
