@@ -4,8 +4,6 @@
 Synchronous, blocking redis binding for node.js.
 This modules requires hiredis C library on your system.
 
-No support for transaction, simply get, set and expire.
-
 ## Preparation
 
 	git clone https://github.com/redis/hiredis
@@ -16,19 +14,29 @@ No support for transaction, simply get, set and expire.
 
     npm install hiredis-simple
 
+## Supported commnads
+
+GET/SET/DEL/LPUSH/RPUSH/LRANGE/LPOP/RPOP/EXIST/INCR/INCRBY/DECR/DECRBY
+
 ## Examples
 
 ```javascript
 var HiredisSimple = require('hiredis-simple');
-var redis = HiredisSimple.Client();
+var redis = new HiredisSimple.Client();
 
 redis.connect("127.0.0.1",6379);
 
 redis.set("key1","value1");
+var value1 = redis.get("key1");
 
 redis.expire("key1",86400);
 
-var value = redis.get("key1");
+redis.lpush("list1","value1"); // can push one-by-one
+redis.rpush("list1","value2");
+var array = redis.lrange("list1",0,-1);
+
+var value1 = redis.lpop("list1");
+var value2 = redis.rpop("list1");
 
 redis.disconnect();
 ```

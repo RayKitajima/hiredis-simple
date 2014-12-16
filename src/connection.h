@@ -36,7 +36,17 @@ protected:
 	static NAN_METHOD(Get);
 	static NAN_METHOD(Set);
 	static NAN_METHOD(Del);
+	static NAN_METHOD(Lpush);
+	static NAN_METHOD(Rpush);
+	static NAN_METHOD(Lrange);
+	static NAN_METHOD(Lpop);
+	static NAN_METHOD(Rpop);
+	static NAN_METHOD(Exists);
 	static NAN_METHOD(Expire);
+	static NAN_METHOD(Incr);
+	static NAN_METHOD(Incrby);
+	static NAN_METHOD(Decr);
+	static NAN_METHOD(Decrby);
 	
 	static char* MallocCString(Handle<Value> v8String);
 	

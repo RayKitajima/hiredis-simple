@@ -46,8 +46,58 @@ void Connection::Init(Handle<Object> target)
 	);
 	
 	tpl->PrototypeTemplate()->Set(
+		NanNew<String>("lpush"),
+		NanNew<FunctionTemplate>(Lpush)->GetFunction()
+	);
+	
+	tpl->PrototypeTemplate()->Set(
+		NanNew<String>("rpush"),
+		NanNew<FunctionTemplate>(Rpush)->GetFunction()
+	);
+	
+	tpl->PrototypeTemplate()->Set(
+		NanNew<String>("lrange"),
+		NanNew<FunctionTemplate>(Lrange)->GetFunction()
+	);
+	
+	tpl->PrototypeTemplate()->Set(
+		NanNew<String>("lpop"),
+		NanNew<FunctionTemplate>(Lpop)->GetFunction()
+	);
+	
+	tpl->PrototypeTemplate()->Set(
+		NanNew<String>("rpop"),
+		NanNew<FunctionTemplate>(Rpop)->GetFunction()
+	);
+	
+	tpl->PrototypeTemplate()->Set(
 		NanNew<String>("expire"),
 		NanNew<FunctionTemplate>(Expire)->GetFunction()
+	);
+	
+	tpl->PrototypeTemplate()->Set(
+		NanNew<String>("exists"),
+		NanNew<FunctionTemplate>(Exists)->GetFunction()
+	);
+	
+	tpl->PrototypeTemplate()->Set(
+		NanNew<String>("incr"),
+		NanNew<FunctionTemplate>(Incr)->GetFunction()
+	);
+	
+	tpl->PrototypeTemplate()->Set(
+		NanNew<String>("incrby"),
+		NanNew<FunctionTemplate>(Incrby)->GetFunction()
+	);
+	
+	tpl->PrototypeTemplate()->Set(
+		NanNew<String>("decr"),
+		NanNew<FunctionTemplate>(Decr)->GetFunction()
+	);
+	
+	tpl->PrototypeTemplate()->Set(
+		NanNew<String>("decrby"),
+		NanNew<FunctionTemplate>(Decrby)->GetFunction()
 	);
 	
 	tpl->PrototypeTemplate()->Set(
@@ -100,9 +150,7 @@ NAN_METHOD(Connection::Disconnect)
 	NanReturnUndefined();
 }
 
-
 // *   *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    * 
-
 
 //v8 entry point into Connection#get
 NAN_METHOD(Connection::Get)
@@ -176,6 +224,231 @@ NAN_METHOD(Connection::Set)
 	NanReturnUndefined();
 }
 
+// *   *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    * 
+
+//v8 entry point into Connection#lpush
+NAN_METHOD(Connection::Lpush)
+{
+	NanScope();
+	Connection *self = ObjectWrap::Unwrap<Connection>(args.This());
+	
+	if( !args[0]->IsString() || !args[1]->IsString() ){
+		NanThrowError("key and value should be string");
+	}
+	
+	char* key = MallocCString(args[0]);
+	char* val = MallocCString(args[1]);
+	
+	// call hiredis
+	redisReply *reply;
+	redisAppendCommand(self->connection_,"LPUSH %s %s",key,val);
+	int res = redisGetReply(self->connection_, (void**)&reply);
+	
+	if( res == REDIS_ERR ){
+		LOG("LPUSH command failed");
+		free(key);
+		freeReplyObject(reply);
+		NanReturnUndefined();
+	}
+	
+	free(key);
+	free(val);
+	freeReplyObject(reply);
+	
+	NanReturnUndefined();
+}
+
+//v8 entry point into Connection#rpush
+NAN_METHOD(Connection::Rpush)
+{
+	NanScope();
+	Connection *self = ObjectWrap::Unwrap<Connection>(args.This());
+	
+	if( !args[0]->IsString() || !args[1]->IsString() ){
+		NanThrowError("key and value should be string");
+	}
+	
+	char* key = MallocCString(args[0]);
+	char* val = MallocCString(args[1]);
+	
+	// call hiredis
+	redisReply *reply;
+	redisAppendCommand(self->connection_,"RPUSH %s %s",key,val);
+	int res = redisGetReply(self->connection_, (void**)&reply);
+	
+	if( res == REDIS_ERR ){
+		LOG("RPUSH command failed");
+		free(key);
+		freeReplyObject(reply);
+		NanReturnUndefined();
+	}
+	
+	free(key);
+	free(val);
+	freeReplyObject(reply);
+	
+	NanReturnUndefined();
+}
+
+//v8 entry point into Connection#lrange
+NAN_METHOD(Connection::Lrange)
+{
+	NanScope();
+	Connection *self = ObjectWrap::Unwrap<Connection>(args.This());
+	
+	if( !args[0]->IsString() || !args[1]->IsNumber() || !args[2]->IsNumber() ){
+		NanThrowError("key and range (from to) should be defiend");
+	}
+	
+	char* key  = MallocCString(args[0]);
+	char* from = MallocCString(args[1]);
+	char* to   = MallocCString(args[2]);
+	
+	// call hiredis
+	redisReply *reply;
+	redisAppendCommand(self->connection_,"LRANGE %s %s %s",key,from,to);
+	int res = redisGetReply(self->connection_, (void**)&reply);
+	
+	if( res == REDIS_ERR ){
+		LOG("LRANGE command failed");
+		free(key);
+		freeReplyObject(reply);
+		NanReturnUndefined();
+	}
+	
+	// make response
+	Local<Array> response = NanNew<v8::Array>();
+	unsigned int i = 0;
+	if( reply->type == REDIS_REPLY_ARRAY ){
+		unsigned int j;
+		for( j=0; j<reply->elements; j++ ){
+			response->Set(i++,String::New(reply->element[j]->str));
+		}
+	}
+	
+	free(key);
+	free(from);
+	free(to);
+	freeReplyObject(reply);
+	
+	NanReturnValue(response);
+}
+
+//v8 entry point into Connection#lpop
+NAN_METHOD(Connection::Lpop)
+{
+	NanScope();
+	Connection *self = ObjectWrap::Unwrap<Connection>(args.This());
+	
+	if( !args[0]->IsString() ){
+		NanThrowError("No key specified");
+	}
+	
+	char* key = MallocCString(args[0]);
+	
+	// call hiredis
+	redisReply *reply;
+	redisAppendCommand(self->connection_,"LPOP %s",key);
+	int res = redisGetReply(self->connection_, (void**)&reply);
+	
+	if( res == REDIS_ERR ){
+		LOG("LPOP command failed");
+		free(key);
+		freeReplyObject(reply);
+		NanReturnUndefined();
+	}
+	
+	// make response
+	Local<Value> response;
+	
+	// currently supports integer and string
+	if( reply->type == REDIS_REPLY_STRING ){
+		response = String::New(reply->str);
+	}else if( reply->type == REDIS_REPLY_INTEGER ){
+		response = Integer::New(reply->integer);
+	}
+	
+	free(key);
+	freeReplyObject(reply);
+	
+	NanReturnValue(response);
+}
+
+//v8 entry point into Connection#rpop
+NAN_METHOD(Connection::Rpop)
+{
+	NanScope();
+	Connection *self = ObjectWrap::Unwrap<Connection>(args.This());
+	
+	if( !args[0]->IsString() ){
+		NanThrowError("No key specified");
+	}
+	
+	char* key = MallocCString(args[0]);
+	
+	// call hiredis
+	redisReply *reply;
+	redisAppendCommand(self->connection_,"RPOP %s",key);
+	int res = redisGetReply(self->connection_, (void**)&reply);
+	
+	if( res == REDIS_ERR ){
+		LOG("RPOP command failed");
+		free(key);
+		freeReplyObject(reply);
+		NanReturnUndefined();
+	}
+	
+	// make response
+	Local<Value> response;
+	
+	// currently supports integer and string
+	if( reply->type == REDIS_REPLY_STRING ){
+		response = String::New(reply->str);
+	}else if( reply->type == REDIS_REPLY_INTEGER ){
+		response = Integer::New(reply->integer);
+	}
+	
+	free(key);
+	freeReplyObject(reply);
+	
+	NanReturnValue(response);
+}
+
+// *   *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    * 
+
+//v8 entry point into Connection#exists
+NAN_METHOD(Connection::Exists)
+{
+	NanScope();
+	Connection *self = ObjectWrap::Unwrap<Connection>(args.This());
+	
+	if( !args[0]->IsString() ){
+		NanThrowError("No key specified");
+	}
+	
+	char* key = MallocCString(args[0]);
+	
+	// call hiredis
+	redisReply *reply;
+	redisAppendCommand(self->connection_,"EXISTS %s",key);
+	int res = redisGetReply(self->connection_, (void**)&reply);
+	
+	if( res == REDIS_ERR ){
+		LOG("EXISTS command failed");
+		free(key);
+		freeReplyObject(reply);
+		NanReturnUndefined();
+	}
+	
+	// make response
+	Local<Value> response = Integer::New(reply->integer); // 0|1
+	
+	free(key);
+	freeReplyObject(reply);
+	
+	NanReturnValue(response);
+}
+
 //v8 entry point into Connection#del
 NAN_METHOD(Connection::Del)
 {
@@ -217,9 +490,145 @@ NAN_METHOD(Connection::Expire)
 	NanReturnUndefined();
 }
 
-
 // *   *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    * 
 
+//v8 entry point into Connection#incr
+NAN_METHOD(Connection::Incr)
+{
+	NanScope();
+	Connection *self = ObjectWrap::Unwrap<Connection>(args.This());
+	
+	if( !args[0]->IsString() ){
+		NanThrowError("No key specified");
+	}
+	
+	char* key = MallocCString(args[0]);
+	
+	// call hiredis
+	redisReply *reply;
+	redisAppendCommand(self->connection_,"INCR %s",key);
+	int res = redisGetReply(self->connection_, (void**)&reply);
+	
+	if( res == REDIS_ERR ){
+		LOG("INCR command failed");
+		free(key);
+		freeReplyObject(reply);
+		NanReturnUndefined();
+	}
+	
+	// make response
+	Local<Value> response = Integer::New(reply->integer);
+	
+	free(key);
+	freeReplyObject(reply);
+	
+	NanReturnValue(response);
+}
+
+//v8 entry point into Connection#incrby
+NAN_METHOD(Connection::Incrby)
+{
+	NanScope();
+	Connection *self = ObjectWrap::Unwrap<Connection>(args.This());
+	
+	if( !args[0]->IsString() || !args[1]->IsNumber() ){
+		NanThrowError("key and num should be specified");
+	}
+	
+	char* key = MallocCString(args[0]);
+	char* num = MallocCString(args[1]);
+	
+	// call hiredis
+	redisReply *reply;
+	redisAppendCommand(self->connection_,"INCRBY %s %s",key,num);
+	int res = redisGetReply(self->connection_, (void**)&reply);
+	
+	if( res == REDIS_ERR ){
+		LOG("INCRBY command failed");
+		free(key);
+		freeReplyObject(reply);
+		NanReturnUndefined();
+	}
+	
+	// make response
+	Local<Value> response = Integer::New(reply->integer);
+	
+	free(key);
+	free(num);
+	freeReplyObject(reply);
+	
+	NanReturnValue(response);
+}
+
+//v8 entry point into Connection#decr
+NAN_METHOD(Connection::Decr)
+{
+	NanScope();
+	Connection *self = ObjectWrap::Unwrap<Connection>(args.This());
+	
+	if( !args[0]->IsString() ){
+		NanThrowError("No key specified");
+	}
+	
+	char* key = MallocCString(args[0]);
+	
+	// call hiredis
+	redisReply *reply;
+	redisAppendCommand(self->connection_,"DECR %s",key);
+	int res = redisGetReply(self->connection_, (void**)&reply);
+	
+	if( res == REDIS_ERR ){
+		LOG("DECR command failed");
+		free(key);
+		freeReplyObject(reply);
+		NanReturnUndefined();
+	}
+	
+	// make response
+	Local<Value> response = Integer::New(reply->integer);
+	
+	free(key);
+	freeReplyObject(reply);
+	
+	NanReturnValue(response);
+}
+
+//v8 entry point into Connection#decrby
+NAN_METHOD(Connection::Decrby)
+{
+	NanScope();
+	Connection *self = ObjectWrap::Unwrap<Connection>(args.This());
+	
+	if( !args[0]->IsString() || !args[1]->IsNumber() ){
+		NanThrowError("key and num should be specified");
+	}
+	
+	char* key = MallocCString(args[0]);
+	char* num = MallocCString(args[1]);
+	
+	// call hiredis
+	redisReply *reply;
+	redisAppendCommand(self->connection_,"DECRBY %s %s",key,num);
+	int res = redisGetReply(self->connection_, (void**)&reply);
+	
+	if( res == REDIS_ERR ){
+		LOG("DECRBY command failed");
+		free(key);
+		freeReplyObject(reply);
+		NanReturnUndefined();
+	}
+	
+	// make response
+	Local<Value> response = Integer::New(reply->integer);
+	
+	free(key);
+	free(num);
+	freeReplyObject(reply);
+	
+	NanReturnValue(response);
+}
+
+// *   *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    * 
 
 //initialize redis context
 bool Connection::Connect(const char* host, const int port)
@@ -244,9 +653,7 @@ void Connection::Disconnect()
 	}
 }
 
-
 // *   *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    * 
-
 
 //helper function to malloc new string from v8string
 char* Connection::MallocCString(v8::Handle<Value> v8String)

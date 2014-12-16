@@ -44,6 +44,29 @@ val1 = redis.get("key1");
 console.log(val1);
 
 console.log("---");
+console.log("making list: c b a 1 2 3");
+redis.lpush("list1","a");
+redis.lpush("list1","b");
+redis.lpush("list1","c");
+redis.rpush("list1","1");
+redis.rpush("list1","2");
+redis.rpush("list1","3");
+var array = redis.lrange("list1",0,-1);
+console.log("list1:"+array[0]);
+
+redis.lpop("list1");
+redis.rpop("list1");
+var array = redis.lrange("list1",0,-1);
+console.log("list1:"+array);
+
+if( redis.exists("list1") ){
+	console.log("list1 is exist");
+}
+
+var count = redis.incr("counter");
+count = redis.decrby("counter",2);
+
+console.log("---");
 console.log("key2 has:");
 console.log(val2);
 console.log("expire key2 after 3sec");
