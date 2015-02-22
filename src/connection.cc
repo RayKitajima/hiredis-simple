@@ -183,7 +183,7 @@ NAN_METHOD(Connection::Get)
 	if( reply->type == REDIS_REPLY_STRING ){
 		response = NanNew<String>(reply->str);
 	}else if( reply->type == REDIS_REPLY_INTEGER ){
-		response = NanNew<Integer>(reply->integer);
+		response = NanNew<Number>(reply->integer);
 	}
 	
 	free(key);
@@ -365,7 +365,7 @@ NAN_METHOD(Connection::Lpop)
 	if( reply->type == REDIS_REPLY_STRING ){
 		response = NanNew<String>(reply->str);
 	}else if( reply->type == REDIS_REPLY_INTEGER ){
-		response = NanNew<Integer>(reply->integer);
+		response = NanNew<Number>(reply->integer);
 	}
 	
 	free(key);
@@ -405,7 +405,7 @@ NAN_METHOD(Connection::Rpop)
 	if( reply->type == REDIS_REPLY_STRING ){
 		response = NanNew<String>(reply->str);
 	}else if( reply->type == REDIS_REPLY_INTEGER ){
-		response = NanNew<Integer>(reply->integer);
+		response = NanNew<Number>(reply->integer);
 	}
 	
 	free(key);
@@ -441,7 +441,7 @@ NAN_METHOD(Connection::Exists)
 	}
 	
 	// make response
-	Local<Value> response = NanNew<Integer>(reply->integer); // 0|1
+	Local<Value> response = NanNew<Number>(reply->integer); // 0|1
 	
 	free(key);
 	freeReplyObject(reply);
@@ -517,7 +517,7 @@ NAN_METHOD(Connection::Incr)
 	}
 	
 	// make response
-	Local<Value> response = NanNew<Integer>(reply->integer);
+	Local<Value> response = NanNew<Number>(reply->integer);
 	
 	free(key);
 	freeReplyObject(reply);
@@ -551,7 +551,7 @@ NAN_METHOD(Connection::Incrby)
 	}
 	
 	// make response
-	Local<Value> response = NanNew<Integer>(reply->integer);
+	Local<Value> response = NanNew<Number>(reply->integer);
 	
 	free(key);
 	free(num);
@@ -585,7 +585,7 @@ NAN_METHOD(Connection::Decr)
 	}
 	
 	// make response
-	Local<Value> response = NanNew<Integer>(reply->integer);
+	Local<Value> response = NanNew<Number>(reply->integer);
 	
 	free(key);
 	freeReplyObject(reply);
@@ -619,7 +619,7 @@ NAN_METHOD(Connection::Decrby)
 	}
 	
 	// make response
-	Local<Value> response = NanNew<Integer>(reply->integer);
+	Local<Value> response = NanNew<Number>(reply->integer);
 	
 	free(key);
 	free(num);
