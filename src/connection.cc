@@ -181,9 +181,9 @@ NAN_METHOD(Connection::Get)
 	
 	// currently supports integer and string
 	if( reply->type == REDIS_REPLY_STRING ){
-		response = String::New(reply->str);
+		response = NanNew<String>(reply->str);
 	}else if( reply->type == REDIS_REPLY_INTEGER ){
-		response = Integer::New(reply->integer);
+		response = NanNew<Integer>(reply->integer);
 	}
 	
 	free(key);
@@ -322,7 +322,7 @@ NAN_METHOD(Connection::Lrange)
 	if( reply->type == REDIS_REPLY_ARRAY ){
 		unsigned int j;
 		for( j=0; j<reply->elements; j++ ){
-			response->Set(i++,String::New(reply->element[j]->str));
+			response->Set(i++,NanNew<String>(reply->element[j]->str));
 		}
 	}
 	
@@ -363,9 +363,9 @@ NAN_METHOD(Connection::Lpop)
 	
 	// currently supports integer and string
 	if( reply->type == REDIS_REPLY_STRING ){
-		response = String::New(reply->str);
+		response = NanNew<String>(reply->str);
 	}else if( reply->type == REDIS_REPLY_INTEGER ){
-		response = Integer::New(reply->integer);
+		response = NanNew<Integer>(reply->integer);
 	}
 	
 	free(key);
@@ -403,9 +403,9 @@ NAN_METHOD(Connection::Rpop)
 	
 	// currently supports integer and string
 	if( reply->type == REDIS_REPLY_STRING ){
-		response = String::New(reply->str);
+		response = NanNew<String>(reply->str);
 	}else if( reply->type == REDIS_REPLY_INTEGER ){
-		response = Integer::New(reply->integer);
+		response = NanNew<Integer>(reply->integer);
 	}
 	
 	free(key);
@@ -441,7 +441,7 @@ NAN_METHOD(Connection::Exists)
 	}
 	
 	// make response
-	Local<Value> response = Integer::New(reply->integer); // 0|1
+	Local<Value> response = NanNew<Integer>(reply->integer); // 0|1
 	
 	free(key);
 	freeReplyObject(reply);
@@ -517,7 +517,7 @@ NAN_METHOD(Connection::Incr)
 	}
 	
 	// make response
-	Local<Value> response = Integer::New(reply->integer);
+	Local<Value> response = NanNew<Integer>(reply->integer);
 	
 	free(key);
 	freeReplyObject(reply);
@@ -551,7 +551,7 @@ NAN_METHOD(Connection::Incrby)
 	}
 	
 	// make response
-	Local<Value> response = Integer::New(reply->integer);
+	Local<Value> response = NanNew<Integer>(reply->integer);
 	
 	free(key);
 	free(num);
@@ -585,7 +585,7 @@ NAN_METHOD(Connection::Decr)
 	}
 	
 	// make response
-	Local<Value> response = Integer::New(reply->integer);
+	Local<Value> response = NanNew<Integer>(reply->integer);
 	
 	free(key);
 	freeReplyObject(reply);
@@ -619,7 +619,7 @@ NAN_METHOD(Connection::Decrby)
 	}
 	
 	// make response
-	Local<Value> response = Integer::New(reply->integer);
+	Local<Value> response = NanNew<Integer>(reply->integer);
 	
 	free(key);
 	free(num);
