@@ -47,6 +47,12 @@ protected:
 	static NAN_METHOD(Incrby);
 	static NAN_METHOD(Decr);
 	static NAN_METHOD(Decrby);
+	static NAN_METHOD(Sadd);
+	static NAN_METHOD(Smembers);
+	static NAN_METHOD(Randomkey);
+	static NAN_METHOD(Srandmember);
+	static NAN_METHOD(Flushall);
+	static NAN_METHOD(Flushdb);
 	
 	static char* MallocCString(Handle<Value> v8String);
 	

@@ -18,6 +18,11 @@ This modules requires hiredis C library on your system.
 
 GET/SET/DEL/LPUSH/RPUSH/LRANGE/LPOP/RPOP/EXIST/INCR/INCRBY/DECR/DECRBY
 
+SADD/SMEMBERS/SRANDMEMBER/RANDOMKEY
+
+FLUSHDB/FLUSHALL
+
+
 ## Examples
 
 ```javascript
