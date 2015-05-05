@@ -718,15 +718,19 @@ NAN_METHOD(Connection::Sadd)
 	if( res == REDIS_ERR ){
 		LOG("SADD command failed");
 		free(key);
+		free(val);
 		freeReplyObject(reply);
 		NanReturnUndefined();
 	}
 	
+	// make response
+	Local<Value> response = NanNew<Number>(reply->integer);
+
 	free(key);
 	free(val);
 	freeReplyObject(reply);
 	
-	NanReturnUndefined();
+	NanReturnValue(response);
 }
 
 //v8 entry point into Connection#smembers
