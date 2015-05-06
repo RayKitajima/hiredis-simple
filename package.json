@@ -1,6 +1,6 @@
 {
 	"name" : "hiredis-simple",
-	"version" : "0.3.1",
+	"version" : "0.3.2",
 	"description" : "Synchronous, blocking simple Redis, hiredis C client binding.",
 	"keywords" : [
 		"redis",
