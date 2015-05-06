@@ -31,6 +31,7 @@ protected:
 	
 	static NAN_METHOD(New);
 	static NAN_METHOD(Connect);
+	static NAN_METHOD(Select);
 	static NAN_METHOD(Disconnect);
 	
 	static NAN_METHOD(Get);

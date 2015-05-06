@@ -7,7 +7,6 @@
 				"src/connection.cc"
 			],
 			"include_dirs": [
-				'<!@(pg_config --includedir)',
 				'<!(node -e "require(\'nan\')")'
 			],
 			"libraries" : ['-lhiredis']

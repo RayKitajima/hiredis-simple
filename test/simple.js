@@ -83,6 +83,13 @@ redis.sadd("myset","sval1");
 redis.sadd("myset","sval2");
 redis.sadd("myset",3);
 redis.sadd("myset",4);
+var res;
+console.log("checking sadd response:");
+console.log("add new val");
+res = redis.sadd("myset",5);
+console.log("response should be 1:"+res);
+res = redis.sadd("myset","sval1");
+console.log("response should be 0:"+res);
 var myset_vals = redis.smembers("myset");
 console.log("myset now has:");
 console.log(myset_vals);
@@ -90,6 +97,23 @@ console.log("pickup random one, should be sva11, sval2, 3 or 4");
 myset_vals = redis.srandmember("myset");
 console.log(myset_vals);
 console.log("value of SET is string, call parseInt if your data should be number");
+
+console.log("---");
+redis.set("key1","value1"); // prep (default:0)
+console.log("select db:0, and get val for key1");
+redis.select(0);
+var res;
+res = redis.get("key1");
+console.log("response should value1:"+res);
+console.log("switch to db:1, and get val for key1");
+redis.select(1);
+res = redis.get("key1");
+console.log("response should undefined:"+res);
+console.log("check setting...");
+redis.set("key1","value1fordb1");
+res = redis.get("key1");
+console.log("the value should value1fordb1:"+res);
+redis.select(0); // back to default
 
 console.log("---");
 redis.del("counter");

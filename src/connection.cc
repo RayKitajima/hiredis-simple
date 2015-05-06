@@ -31,6 +31,11 @@ void Connection::Init(Handle<Object> target)
 	);
 	
 	tpl->PrototypeTemplate()->Set(
+		NanNew<String>("select"),
+		NanNew<FunctionTemplate>(Select)->GetFunction()
+	);
+
+	tpl->PrototypeTemplate()->Set(
 		NanNew<String>("get"),
 		NanNew<FunctionTemplate>(Get)->GetFunction()
 	);
@@ -166,6 +171,35 @@ NAN_METHOD(Connection::Connect)
 		self->Disconnect();
 	}
 	
+	NanReturnUndefined();
+}
+
+//v8 entry point into Connection#select
+NAN_METHOD(Connection::Select)
+{
+	NanScope();
+	Connection *self = ObjectWrap::Unwrap<Connection>(args.This());
+
+	if(args.Length() == 0 || !args[0]->IsNumber()) {
+		NanThrowError("Invalid select request, you should specify index");
+	}
+
+	char* index = MallocCString(args[0]);
+
+	// call hiredis
+	redisReply *reply;
+	redisAppendCommand(self->connection_,"SELECT %s",index);
+	int res = redisGetReply(self->connection_, (void**)&reply);
+
+	if(res == REDIS_ERR) {
+		LOG("Can not select database");
+		free(index);
+		freeReplyObject(reply);
+		NanReturnUndefined();
+	}
+
+	free(index);
+	freeReplyObject(reply);
 	NanReturnUndefined();
 }
 
@@ -684,15 +718,19 @@ NAN_METHOD(Connection::Sadd)
 	if( res == REDIS_ERR ){
 		LOG("SADD command failed");
 		free(key);
+		free(val);
 		freeReplyObject(reply);
 		NanReturnUndefined();
 	}
 	
+	// make response
+	Local<Value> response = NanNew<Number>(reply->integer);
+
 	free(key);
 	free(val);
 	freeReplyObject(reply);
 	
-	NanReturnUndefined();
+	NanReturnValue(response);
 }
 
 //v8 entry point into Connection#smembers
