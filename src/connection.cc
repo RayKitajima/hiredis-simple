@@ -278,6 +278,7 @@ NAN_METHOD(Connection::Set)
 	if( res == REDIS_ERR ){
 		LOG("SET command failed");
 		free(key);
+		free(val);
 		freeReplyObject(reply);
 		NanReturnUndefined();
 	}
@@ -315,6 +316,7 @@ NAN_METHOD(Connection::Lpush)
 	if( res == REDIS_ERR ){
 		LOG("LPUSH command failed");
 		free(key);
+		free(val);
 		freeReplyObject(reply);
 		NanReturnUndefined();
 	}
@@ -350,6 +352,7 @@ NAN_METHOD(Connection::Rpush)
 	if( res == REDIS_ERR ){
 		LOG("RPUSH command failed");
 		free(key);
+		free(val);
 		freeReplyObject(reply);
 		NanReturnUndefined();
 	}
