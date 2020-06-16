@@ -52,9 +52,5 @@ redis.disconnect();
 
 Node 0.8, 0.10, 0.11+ supported.
 
-## License
 
-Copyright (c) 2013 Rei Kitajima (rei.kitajima@gmail.com)
-
-MIT License
 
